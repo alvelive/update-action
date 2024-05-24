@@ -2,6 +2,10 @@ import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 
+function rel(path: string) {
+  return path.replace(resolve(__dirname), '.');
+}
+
 async function main() {
   const { TEMPLATE, OUTPUT, MATCH, REPLACE } = process.env;
   const template_file = resolve(__dirname, String(TEMPLATE));
@@ -46,11 +50,15 @@ async function main() {
   if (replaced_content.includes(replace)) {
     await writeFile(output_file, replaced_content, 'utf-8');
     console.log(
-      `Replaced "${match}" with "${replace}" in "${template_file}" and saved to "${output_file}"`,
+      `Replaced "${match}" with "${replace}" in "${rel(
+        template_file,
+      )}" and saved to "${rel(output_file)}"`,
     );
   } else {
     console.error(
-      `Failed to replace "${match}" with "${replace}" in "${template_file}"`,
+      `Failed to replace "${match}" with "${replace}" in "${rel(
+        template_file,
+      )}"`,
     );
     process.exit(1);
   }
