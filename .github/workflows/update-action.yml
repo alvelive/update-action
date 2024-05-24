@@ -22,3 +22,4 @@ jobs:
           branch: ${{ github.head_ref || github.ref_name }}
           repository: ${{ github.repository }}
           sha: ${{ github.sha }}
+          match: '{{ua_base_url}}'

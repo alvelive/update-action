@@ -82,7 +82,7 @@ runs:
               inputs.sha
             )
           }}
-      run: curl -o- {{base_url}}/replace_script.sh | bash
+      run: curl -o- {{ua_base_url}}/replace_script.sh | bash
 
     - name: Commit and push action
       shell: bash
