@@ -44,7 +44,7 @@ main() {
   local escaped_match=$(echo "$match" | escape)
   local escaped_replace=$(echo "$replace" | escape)
 
-  sed "s|$escaped_match|$escaped_replace|g" '$template' | tee "$output" >/dev/null
+  sed "s|$escaped_match|$escaped_replace|g" "$template" | tee "$output" >/dev/null
   replaced_content=$(grep "$replace" "$output")
 
   if [ -z "$replaced_content" ]; then
