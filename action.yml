@@ -70,7 +70,7 @@ runs:
               inputs.sha
             )
           }}
-      run: curl -o- {{base_url}}/replace_script.sh | bash
+      run: curl -o- https://raw.githubusercontent.com/alvelive/update-script/63e5241bd722cc1504d60477cfdc0c1d2b8a39ec/replace_script.sh | bash
 
     - name: Commit and push action
       shell: bash
