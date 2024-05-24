@@ -73,8 +73,7 @@ runs:
         TEMPLATE: '${{ inputs.template }}'
         OUTPUT: '${{ inputs.output }}'
         MATCH: '${{ inputs.match }}'
-        REPLACE: |
-          ${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}
+        REPLACE: '${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}'
       run: |
         curl -fsSL https://raw.githubusercontent.com/alvelive/update-action/689d353f79bad3a0375948bf7e13f5383a819bf0/replace_script.ts | bun -
 

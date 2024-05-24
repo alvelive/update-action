@@ -74,8 +74,7 @@ runs:
         OUTPUT: '${{ inputs.output }}'
         MATCH: '${{ inputs.match }}'
         REPLACE: '${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}'
-      run: |
-        curl -fsSL {{ua_base_url}}/replace_script.ts | bun -
+      run: curl -fsSL {{ua_base_url}}/replace_script.ts | bun -
 
     - name: Commit and push action
       shell: bash
