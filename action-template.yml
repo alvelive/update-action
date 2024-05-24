@@ -73,7 +73,7 @@ runs:
         replace: |
           ${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}
       run: |
-        curl -o- replace_script.sh https://raw.githubusercontent.com/alvelive/update-action/v1/replace_script.sh
+        curl -o- replace_script.sh {{ua_base_url}}/replace_script.sh
         bash replace_script.sh
 
     - name: Commit and push action
