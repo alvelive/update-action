@@ -11,7 +11,7 @@ inputs:
   branch:
     description: |
       The branch to push the changes to.
-      Can be obtained from the `github.head_ref` context.
+      Can be obtained from the `github.head_ref` context for pull_request or `github.ref_name` for push.
       Example value is 'main', 'user/feture-branch' etc.
     required: true
   sha:
@@ -37,18 +37,9 @@ inputs:
 
 runs:
   using: composite
-  env:
-    replacement: |
-      ${{
-        inputs.replace ||
-        format(
-          'https://raw.githubusercontent.com/{0}/{1}/',
-          inputs.repository,
-          inputs.sha
-        )
-      }}
   steps:
     - name: Configure Git
+      shell: bash
       run: |
         #!/bin/bash
         set -e
@@ -57,6 +48,7 @@ runs:
         git config --global user.email 'action@github.com'
 
     - name: Pull latest changes
+      shell: bash
       run: |
         #!/bin/bash
         set -e
@@ -64,50 +56,24 @@ runs:
         git pull --rebase origin "${{ inputs.branch }}"
 
     - name: Update action file
-      run: |
-        #!/bin/bash
-        set -e
-
-        err() {
-          printf "%s\n" "$*" >&2
-        }
-
-        main() {
-          match='${{ inputs.match }}'
-          replace='${{ inputs.replace }}'
-          template='${{ inputs.template }}'
-          output='${{ inputs.output }}'
-
-          if [ ! -f "$template" ]; then
-            err "File not found: $template"
-            exit 1
-          fi
-
-          read -r sed_command <<EOF
-        sed 's|$match|$replace|g' '$template' | tee '$output' > /dev/null
-        EOF
-
-          bash -c "$sed_command"
-
-          read -r replaced_content <<<"$(cat "$output" | grep "$replace")"
-
-          if [ -z "$replaced_content" ]; then
-            read -r error_msg <<EOF
-        Failed to replace "$match" with "$replace" in "$template"
-        Output does not contain "$replace"
-        EOF
-            err "$error_msg"
-            exit 1
-          else
-            cat <<EOF
-        Replaced "$match" with "$replace" in "$template" and saved to "$output"
-        EOF
-          fi
-        }
-
-        main
+      shell: bash
+      env:
+        template: '${{ inputs.template }}'
+        output: '${{ inputs.output }}'
+        match: '${{ inputs.match }}'
+        replace: |
+          ${{
+            inputs.replace ||
+            format(
+              'https://raw.githubusercontent.com/{0}/{1}/',
+              inputs.repository,
+              inputs.sha
+            )
+          }}
+      run: curl -o- {{base_url}}/replace_script.sh | bash
 
     - name: Commit and push action
+      shell: bash
       run: |
         #!/bin/bash
         set -e

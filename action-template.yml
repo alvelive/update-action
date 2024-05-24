@@ -39,6 +39,7 @@ runs:
   using: composite
   steps:
     - name: Configure Git
+      shell: bash
       run: |
         #!/bin/bash
         set -e
@@ -47,6 +48,7 @@ runs:
         git config --global user.email 'action@github.com'
 
     - name: Pull latest changes
+      shell: bash
       run: |
         #!/bin/bash
         set -e
@@ -54,6 +56,7 @@ runs:
         git pull --rebase origin "${{ inputs.branch }}"
 
     - name: Update action file
+      shell: bash
       env:
         template: '${{ inputs.template }}'
         output: '${{ inputs.output }}'
@@ -70,6 +73,7 @@ runs:
       run: curl -o-{{base_url}}/replace_script.sh | bash
 
     - name: Commit and push action
+      shell: bash
       run: |
         #!/bin/bash
         set -e
