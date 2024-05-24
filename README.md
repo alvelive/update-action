@@ -122,3 +122,5 @@ string if `replace` is not provided:
   in the `template` file.
 - The action uses Bash scripts to perform file operations and Git commands.
   Ensure that the runner environment supports Bash.
+
+# Path: action-template.yml
