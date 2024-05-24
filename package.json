@@ -1,0 +1,16 @@
+{
+  "name": "update-action",
+  "version": "1.0.0",
+  "description": "A simple GitHub action for updating a template file with specified values and pushing the changes to a repository.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bun": "^1.1.3",
+    "@types/node": "^20.12.12"
+  }
+}

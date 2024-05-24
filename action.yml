@@ -64,6 +64,9 @@ runs:
         git config --global user.name '${{ inputs.github-username }}'
         git config --global user.email '${{ inputs.github-email }}'
 
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1
+
     - name: Update action file
       shell: bash
       env:
@@ -73,7 +76,7 @@ runs:
         replace: |
           ${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}
       run: |
-        curl -fsSL https://raw.githubusercontent.com/alvelive/update-action/v1/replace_script.sh | bash
+        curl -fsSL https://raw.githubusercontent.com/alvelive/update-action/v1/replace_script.ts | bun -
 
     - name: Commit and push action
       shell: bash
