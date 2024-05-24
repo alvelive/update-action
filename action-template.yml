@@ -37,7 +37,6 @@ inputs:
 
 runs:
   using: composite
-  env:
   steps:
     - name: Configure Git
       run: |
