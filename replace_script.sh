@@ -37,24 +37,16 @@ main() {
     exit 1
   fi
 
-  read -r sed_command <<EOF
-sed 's|$match|$replace|g' '$template' | tee '$output' > /dev/null
-EOF
+  sed_command="sed 's|$match|$replace|g' '$template' | tee '$output' > /dev/null"
 
   bash -c "$sed_command"
-  read -r replaced_content <<<"$(cat "$output" | grep "$replace")"
+  replaced_content=$(grep "$replace" "$output")
 
   if [ -z "$replaced_content" ]; then
-    read -r error_msg <<EOF
-Failed to replace "$match" with "$replace" in "$template"
-Output does not contain "$replace"
-EOF
-    err "$error_msg"
+    err "Failed to replace '$match' with '$replace' in '$template'. Output does not contain '$replace'."
     exit 1
   else
-    cat <<EOF
-Replaced "$match" with "$replace" in "$template" and saved to "$output"
-EOF
+    echo "Replaced '$match' with '$replace' in '$template' and saved to '$output'."
   fi
 }
 

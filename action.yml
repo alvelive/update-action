@@ -11,7 +11,7 @@ inputs:
     default: 'GitHub Actions'
     required: true
   github-email:
-    description: Username to be used in commit
+    description: Email to be used in commit
     default: 'actions@github.com'
     required: true
   repository:
@@ -54,16 +54,13 @@ runs:
     - name: Clone Repository And Update
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.fleet-repo }}
+        repository: ${{ inputs.repository }}
         ref: ${{ inputs.branch }}
         token: ${{ inputs.github-token }}
 
     - name: Configure Git
       shell: bash
       run: |
-        #!/bin/bash
-        set -e
-
         git config --global user.name '${{ inputs.github-username }}'
         git config --global user.email '${{ inputs.github-email }}'
 
@@ -74,15 +71,10 @@ runs:
         output: '${{ inputs.output }}'
         match: '${{ inputs.match }}'
         replace: |
-          ${{
-            inputs.replace ||
-            format(
-              'https://raw.githubusercontent.com/{0}/{1}/',
-              inputs.repository,
-              inputs.sha
-            )
-          }}
-      run: curl -o- https://raw.githubusercontent.com/alvelive/update-action/v1/replace_script.sh | bash
+          ${{ inputs.replace || format('https://raw.githubusercontent.com/${{ inputs.repository }}/${{ inputs.sha }}/', inputs.repository, inputs.sha) }}
+      run: |
+        curl -o replace_script.sh https://raw.githubusercontent.com/alvelive/update-action/v1/replace_script.sh
+        bash replace_script.sh
 
     - name: Commit and push action
       shell: bash
@@ -90,13 +82,6 @@ runs:
         branch: '${{ inputs.branch }}'
         output: '${{ inputs.output }}'
       run: |
-        #!/bin/bash
-        set -e
-
-        read -r commit_message <<EOF
-        Update "$output" to reflect new release
-        EOF
-
-        git add "$output"
-        git commit -m "$commit_message"
-        git push origin "$branch"
+        git add "${{ inputs.output }}"
+        git commit -m "Update ${{ inputs.output }} to reflect new release"
+        git push origin "${{ inputs.branch }}"
