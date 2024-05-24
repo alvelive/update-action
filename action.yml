@@ -73,9 +73,8 @@ runs:
         TEMPLATE: '${{ inputs.template }}'
         OUTPUT: '${{ inputs.output }}'
         MATCH: '${{ inputs.match }}'
-        REPLACE: "${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}"
-      run: |
-        curl -fsSL https://raw.githubusercontent.com/alvelive/update-action/689d353f79bad3a0375948bf7e13f5383a819bf0/replace_script.ts | bun -
+        REPLACE: '${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}'
+      run: curl -fsSL https://raw.githubusercontent.com/alvelive/update-action/87308be1b09a40bf6348f32090cc822e94feb558//replace_script.ts | bun -
 
     - name: Commit and push action
       shell: bash
