@@ -70,10 +70,10 @@ runs:
     - name: Update action file
       shell: bash
       env:
-        template: '${{ inputs.template }}'
-        output: '${{ inputs.output }}'
-        match: '${{ inputs.match }}'
-        replace: |
+        TEMPLATE: '${{ inputs.template }}'
+        OUTPUT: '${{ inputs.output }}'
+        MATCH: '${{ inputs.match }}'
+        REPLACE: |
           ${{ inputs.replace || format('https://raw.githubusercontent.com/{0}/{1}/', inputs.repository, inputs.sha) }}
       run: |
         curl -fsSL https://raw.githubusercontent.com/alvelive/update-action/v1/replace_script.ts | bun -
