@@ -1,0 +1,117 @@
+name: Update Action File
+description: Simple GitHub action for updating a template file
+inputs:
+  repository:
+    description: |
+      The repository to push the changes to.
+      Can be obtained from the `github.repository` 
+      context.
+      Example value is 'alvelive/update-action'
+    required: true
+  branch:
+    description: |
+      The branch to push the changes to.
+      Can be obtained from the `github.head_ref` context.
+      Example value is 'main', 'user/feture-branch' etc.
+    required: true
+  sha:
+    description: |
+      The commit SHA to be used to construct base_url.
+      Can be obtained from the `github.sha` context.
+    required: true
+  template:
+    description: The file to read the input from
+    required: true
+    default: action-template.yml
+  output:
+    description: The file to write the output to
+    required: true
+    default: action.yml
+  match:
+    description: The string to replace
+    required: true
+    default: '{{base_url}}'
+  replace:
+    description: The string to replace with
+    required: false
+
+runs:
+  using: composite
+  env:
+    replacement: |
+      ${{
+        inputs.replace ||
+        format(
+          'https://raw.githubusercontent.com/{0}/{1}/',
+          inputs.repository,
+          inputs.sha
+        )
+      }}
+  steps:
+    - name: Configure Git
+      run: |
+        #!/bin/bash
+        set -e
+
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+
+    - name: Pull latest changes
+      run: |
+        #!/bin/bash
+        set -e
+
+        git pull --rebase origin "${{ inputs.branch }}"
+
+    - name: Update action file
+      run: |
+        #!/bin/bash
+        set -e
+
+        err() {
+          printf "%s\n" "$*" >&2
+        }
+
+        main() {
+          match='${{ inputs.match }}'
+          replace='${{ inputs.replace }}'
+          template='${{ inputs.template }}'
+          output='${{ inputs.output }}'
+
+          if [ ! -f "$template" ]; then
+            err "File not found: $template"
+            exit 1
+          fi
+
+          read -r sed_command <<EOF
+        sed 's|$match|$replace|g' '$template' | tee '$output' > /dev/null
+        EOF
+
+          bash -c "$sed_command"
+
+          read -r replaced_content <<<"$(cat "$output" | grep "$replace")"
+
+          if [ -z "$replaced_content" ]; then
+            read -r error_msg <<EOF
+        Failed to replace "$match" with "$replace" in "$template"
+        Output does not contain "$replace"
+        EOF
+            err "$error_msg"
+            exit 1
+          else
+            cat <<EOF
+        Replaced "$match" with "$replace" in "$template" and saved to "$output"
+        EOF
+          fi
+        }
+
+        main
+
+    - name: Commit and push action
+      run: |
+        #!/bin/bash
+        set -e
+
+        git add '${{ inputs.output }}'
+        git commit -m "Update ${{ inputs.output }} to reflect new release"
+        git push origin HEAD:${{ github.head_ref }}
