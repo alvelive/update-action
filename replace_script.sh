@@ -5,6 +5,10 @@ err() {
   printf "%s\n" "$*" >&2
 }
 
+escape() {
+  sed 's/[`~!@#$%^&*()-_=+{}\|;:",<.>/?]/\\&/g'
+}
+
 main() {
   local should_exit=0
 
@@ -37,7 +41,10 @@ main() {
     exit 1
   fi
 
-  sed "s|$match|$replace|g" '$template' | tee "$output" > /dev/null
+  local escaped_match=$(echo "$match" | escape)
+  local escaped_replace=$(echo "$replace" | escape)
+
+  sed "s|$escaped_match|$escaped_replace|g" '$template' | tee "$output" >/dev/null
   replaced_content=$(grep "$replace" "$output")
 
   if [ -z "$replaced_content" ]; then
