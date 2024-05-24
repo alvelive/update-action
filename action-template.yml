@@ -1,6 +1,19 @@
 name: Update Action File
 description: Simple GitHub action for updating a template file
 inputs:
+  github-token:
+    description: |
+      GitHub actions token to commit to repository.
+      Can be obtained from `secrets.GITHUB_TOKEN` context.
+    required: true
+  github-username:
+    description: Username to be used in commit
+    default: 'GitHub Actions'
+    required: true
+  github-email:
+    description: Username to be used in commit
+    default: 'actions@github.com'
+    required: true
   repository:
     description: |
       The repository to push the changes to.
@@ -38,22 +51,21 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Clone Repository And Update
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.fleet-repo }}
+        ref: ${{ inputs.branch }}
+        token: ${{ inputs.github-token }}
+
     - name: Configure Git
       shell: bash
       run: |
         #!/bin/bash
         set -e
 
-        git config --global user.name 'GitHub Action'
-        git config --global user.email 'action@github.com'
-
-    - name: Pull latest changes
-      shell: bash
-      run: |
-        #!/bin/bash
-        set -e
-
-        git pull --rebase origin "${{ inputs.branch }}"
+        git config --global user.name '${{ inputs.github-username }}'
+        git config --global user.email '${{ inputs.github-email }}'
 
     - name: Update action file
       shell: bash
@@ -70,14 +82,21 @@ runs:
               inputs.sha
             )
           }}
-      run: curl -o-{{base_url}}/replace_script.sh | bash
+      run: curl -o- {{base_url}}/replace_script.sh | bash
 
     - name: Commit and push action
       shell: bash
+      env:
+        branch: '${{ inputs.branch }}'
+        output: '${{ inputs.output }}'
       run: |
         #!/bin/bash
         set -e
 
-        git add '${{ inputs.output }}'
-        git commit -m "Update ${{ inputs.output }} to reflect new release"
-        git push origin HEAD:${{ github.head_ref }}
+        read -r commit_message <<EOF
+        Update "$output" to reflect new release
+        EOF
+
+        git add "$output"
+        git commit -m "$commit_message"
+        git push origin "$branch"

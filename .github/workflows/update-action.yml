@@ -18,6 +18,7 @@ jobs:
       - name: Update action.yml
         uses: alvelive/update-action@v1
         with:
-          repository: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref || github.ref_name }}
+          repository: ${{ github.repository }}
           sha: ${{ github.sha }}
