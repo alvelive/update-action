@@ -1,6 +1,7 @@
 name: Update Action
 
 on:
+  - push
   - pull_request
 
 permissions:
@@ -18,5 +19,5 @@ jobs:
         uses: alvelive/update-action@v1
         with:
           repository: ${{ github.repository }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.head_ref || github.ref_name }}
           sha: ${{ github.sha }}

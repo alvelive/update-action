@@ -11,7 +11,7 @@ inputs:
   branch:
     description: |
       The branch to push the changes to.
-      Can be obtained from the `github.head_ref` context.
+      Can be obtained from the `github.head_ref` context for pull_request or `github.ref_name` for push.
       Example value is 'main', 'user/feture-branch' etc.
     required: true
   sha:
