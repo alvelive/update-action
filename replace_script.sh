@@ -37,9 +37,7 @@ main() {
     exit 1
   fi
 
-  sed_command="sed 's|$match|$replace|g' '$template' | tee '$output' > /dev/null"
-
-  bash -c "$sed_command"
+  sed 's|$match|$replace|g' '$template' | tee '$output' > /dev/null
   replaced_content=$(grep "$replace" "$output")
 
   if [ -z "$replaced_content" ]; then
