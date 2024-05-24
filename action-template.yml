@@ -1,0 +1,80 @@
+name: Update Action File
+description: Simple GitHub action for updating a template file
+inputs:
+  repository:
+    description: |
+      The repository to push the changes to.
+      Can be obtained from the `github.repository` 
+      context.
+      Example value is 'alvelive/update-action'
+    required: true
+  branch:
+    description: |
+      The branch to push the changes to.
+      Can be obtained from the `github.head_ref` context.
+      Example value is 'main', 'user/feture-branch' etc.
+    required: true
+  sha:
+    description: |
+      The commit SHA to be used to construct base_url.
+      Can be obtained from the `github.sha` context.
+    required: true
+  template:
+    description: The file to read the input from
+    required: true
+    default: action-template.yml
+  output:
+    description: The file to write the output to
+    required: true
+    default: action.yml
+  match:
+    description: The string to replace
+    required: true
+    default: '{{base_url}}'
+  replace:
+    description: The string to replace with
+    required: false
+
+runs:
+  using: composite
+  env:
+  steps:
+    - name: Configure Git
+      run: |
+        #!/bin/bash
+        set -e
+
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+
+    - name: Pull latest changes
+      run: |
+        #!/bin/bash
+        set -e
+
+        git pull --rebase origin "${{ inputs.branch }}"
+
+    - name: Update action file
+      env:
+        template: '${{ inputs.template }}'
+        output: '${{ inputs.output }}'
+        match: '${{ inputs.match }}'
+        replace: |
+          ${{
+            inputs.replace ||
+            format(
+              'https://raw.githubusercontent.com/{0}/{1}/',
+              inputs.repository,
+              inputs.sha
+            )
+          }}
+      run: curl -o-{{base_url}}/replace_script.sh | bash
+
+    - name: Commit and push action
+      run: |
+        #!/bin/bash
+        set -e
+
+        git add '${{ inputs.output }}'
+        git commit -m "Update ${{ inputs.output }} to reflect new release"
+        git push origin HEAD:${{ github.head_ref }}

@@ -1,0 +1,22 @@
+name: Update Action
+
+on:
+  - pull_request
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  build:
+    name: Update action file with new script urls
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update action.yml
+        uses: alvelive/update-action@v1
+        with:
+          repository: ${{ github.repository }}
+          branch: ${{ github.head_ref }}
+          sha: ${{ github.sha }}
